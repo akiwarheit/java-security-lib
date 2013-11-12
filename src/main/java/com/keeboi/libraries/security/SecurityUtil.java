@@ -18,6 +18,17 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 public class SecurityUtil {
 
+    private static SecurityUtil securityUtil;
+
+    public static SecurityUtil getInstance() {
+        if (securityUtil == null) {
+            securityUtil = new SecurityUtil();
+            return securityUtil;
+        } else {
+            return securityUtil;
+        }
+    }
+
     private SecurityUtil() {
     }
 
@@ -30,7 +41,7 @@ public class SecurityUtil {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public static byte[] hash(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public byte[] hash(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String algo = "";
         switch (algorithm) {
             case SHA1:
@@ -61,7 +72,7 @@ public class SecurityUtil {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public static byte[] hash(String text, Hash algorithm, Charset charset) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public byte[] hash(String text, Hash algorithm, Charset charset) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String algo = "";
         switch (algorithm) {
             case SHA1:
@@ -94,7 +105,7 @@ public class SecurityUtil {
      * @param hash
      * @return
      */
-    public static String encodeBase64(byte[] hash) {
+    public String encodeBase64(byte[] hash) {
         String base64encoded = Base64.encodeBase64String(hash);
         return base64encoded;
     }
@@ -107,7 +118,7 @@ public class SecurityUtil {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public static String hashEncode(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public String hashEncode(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         byte[] encoded = hash(text, algorithm);
         return Base64.encodeBase64String(encoded);
     }
@@ -117,7 +128,7 @@ public class SecurityUtil {
      * @param string
      * @return
      */
-    public static String encryptSha256Base64(String string) {
+    public String encryptSha256Base64(String string) {
         byte[] bytes = DigestUtils.sha256(string);
         String encryptedString = Base64.encodeBase64String(bytes);
         return encryptedString;
@@ -129,7 +140,7 @@ public class SecurityUtil {
      * @param plainText
      * @return
      */
-    public static String encrypt(SecretKey sKey, String plainText, Encryption algorithm) {
+    public String encrypt(SecretKey sKey, String plainText, Encryption algorithm) {
         StringEncrypter encrypter;
         String encrypted = "";
         try {
@@ -155,7 +166,7 @@ public class SecurityUtil {
      * @param encryptedString
      * @return
      */
-    public static String decrypt(SecretKey sKey, String encryptedString, Encryption algorithm) {
+    public String decrypt(SecretKey sKey, String encryptedString, Encryption algorithm) {
         StringEncrypter encrypter;
         String decrypted = "";
         try {
@@ -181,7 +192,7 @@ public class SecurityUtil {
      * @param encryptedString
      * @return
      */
-    public static String decrypt(SecretKey sKey, String encryptedString, Encryption algorithm, Charset charset) {
+    public String decrypt(SecretKey sKey, String encryptedString, Encryption algorithm, Charset charset) {
         StringEncrypter encrypter;
         String decrypted = "";
         try {
@@ -208,7 +219,7 @@ public class SecurityUtil {
      * @return
      * @throws NoSuchAlgorithmException
      */
-    public static SecretKey generateKey(Encryption algorithm, int bytes) {
+    public SecretKey generateKey(Encryption algorithm, int bytes) {
         KeyGenerator keyGen = null;
         try {
             String algo = "";
@@ -237,7 +248,7 @@ public class SecurityUtil {
      * @param secretKey
      * @return
      */
-    public static String convertSecretKeyToString(SecretKey secretKey) {
+    public String convertSecretKeyToString(SecretKey secretKey) {
         byte[] encoded = secretKey.getEncoded();
         String data = Base64.encodeBase64String(encoded);
         return data;
@@ -249,7 +260,7 @@ public class SecurityUtil {
      * @param algorithm
      * @return
      */
-    public static SecretKey loadKey(String hex, String algorithm) {
+    public SecretKey loadKey(String hex, String algorithm) {
         byte[] encoded = Base64.decodeBase64(hex);
         SecretKey key = new SecretKeySpec(encoded, algorithm);
         return key;

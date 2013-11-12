@@ -26,10 +26,10 @@ public class SecurityUtilTest extends TestCase {
     }
 
     public void test() {
-        SecretKey skey = SecurityUtil.generateKey(Encryption.AES, 128);
+        SecretKey skey = SecurityUtil.getInstance().generateKey(Encryption.AES, 128);
         String message = "Hello world!";
-        String encryptedMessage = SecurityUtil.encrypt(skey, message, Encryption.AES);
-        String decryptedMessage = SecurityUtil.decrypt(skey, encryptedMessage, Encryption.AES);
+        String encryptedMessage = SecurityUtil.getInstance().encrypt(skey, message, Encryption.AES);
+        String decryptedMessage = SecurityUtil.getInstance().decrypt(skey, encryptedMessage, Encryption.AES);
 
         System.out.println(message);
         System.out.println(encryptedMessage);
