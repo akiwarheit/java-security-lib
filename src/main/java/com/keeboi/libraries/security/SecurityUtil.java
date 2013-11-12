@@ -5,43 +5,47 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class SecurityUtil {
 
-    public static class HashingAlgorithms {
-        public static final String SHA_1 = "SHA-1";
-        public static final String MD5 = "MD5";
-    }
-
-    public static class EncryptionAlgorithms {
-        public static final String AES = "AES";
-        public static final String DES = "DES";
-    }
-
-    public SecurityUtil() {
+    private SecurityUtil() {
     }
 
     /**
      * Hash string, provided with hashing algorithm. (charset is set to UTF-8)
-     * 
+     *
      * @param text
      * @param algorithm
      * @return
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public byte[] hash(String text, String algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest digest = MessageDigest.getInstance(algorithm);
+    public static byte[] hash(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        String algo = "";
+        switch (algorithm) {
+            case SHA1:
+                algo = "SHA-1";
+                break;
+            case SHA256:
+                algo = "SHA-256";
+                break;
+            case MD5:
+                algo = "MD5";
+                break;
+            default:
+                break;
+        }
+        MessageDigest digest = MessageDigest.getInstance(algo);
         digest.reset();
         byte[] input = digest.digest(text.getBytes("UTF-8"));
 
@@ -50,126 +54,204 @@ public class SecurityUtil {
 
     /**
      * Hash string, provided with hashing algorithm and character set
-     * 
+     *
      * @param text
      * @param algorithm
      * @return
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public byte[] hash(String text, String algorithm, String charset) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest digest = MessageDigest.getInstance(algorithm);
+    public static byte[] hash(String text, Hash algorithm, Charset charset) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        String algo = "";
+        switch (algorithm) {
+            case SHA1:
+                algo = "SHA-1";
+                break;
+            case SHA256:
+                algo = "SHA-256";
+                break;
+            case MD5:
+                algo = "MD5";
+                break;
+            default:
+                break;
+        }
+        String chars = "";
+        switch (charset) {
+            case UTF8:
+                chars = "UTF8";
+                break;
+        }
+        MessageDigest digest = MessageDigest.getInstance(algo);
         digest.reset();
-        byte[] input = digest.digest(text.getBytes(charset));
+        byte[] input = digest.digest(text.getBytes(chars));
 
         return input;
     }
 
     /**
-     * 
+     *
      * @param hash
      * @return
      */
-    public String encodeBase64(byte[] hash) {
+    public static String encodeBase64(byte[] hash) {
         String base64encoded = Base64.encodeBase64String(hash);
         return base64encoded;
     }
 
     /**
-     * 
+     *
      * @param text
      * @param algorithm
      * @return
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public String hashEncode(String text, String algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static String hashEncode(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         byte[] encoded = hash(text, algorithm);
         return Base64.encodeBase64String(encoded);
     }
 
     /**
-     * 
+     *
      * @param string
      * @return
      */
-    public String encryptSha256Base64(String string) {
+    public static String encryptSha256Base64(String string) {
         byte[] bytes = DigestUtils.sha256(string);
         String encryptedString = Base64.encodeBase64String(bytes);
         return encryptedString;
     }
 
     /**
-     * 
+     *
      * @param sKey
      * @param plainText
      * @return
-     * @throws NoSuchPaddingException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws UnsupportedEncodingException
      */
-    public String encrypt(SecretKey sKey, String plainText, String algorithm) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
-        StringEncrypter encrypter = new StringEncrypter(sKey, algorithm);
-        String encrypted = encrypter.encrypt(plainText);
+    public static String encrypt(SecretKey sKey, String plainText, Encryption algorithm) {
+        StringEncrypter encrypter;
+        String encrypted = "";
+        try {
+            encrypter = new StringEncrypter(sKey, algorithm);
+            encrypted = encrypter.encrypt(plainText);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return encrypted;
     }
 
     /**
-     * 
+     *
      * @param sKey
      * @param encryptedString
      * @return
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
-     * @throws IOException
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
      */
-    public String decrypt(SecretKey sKey, String encryptedString, String algorithm) throws IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
-        StringEncrypter encrypter = new StringEncrypter(sKey, algorithm);
-        String decrypted = encrypter.decrypt(encryptedString);
+    public static String decrypt(SecretKey sKey, String encryptedString, Encryption algorithm) {
+        StringEncrypter encrypter;
+        String decrypted = "";
+        try {
+            encrypter = new StringEncrypter(sKey, algorithm);
+            decrypted = encrypter.decrypt(encryptedString);
+        } catch (IOException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return decrypted;
     }
 
     /**
-     * 
+     *
+     * @param sKey
+     * @param encryptedString
+     * @return
+     */
+    public static String decrypt(SecretKey sKey, String encryptedString, Encryption algorithm, Charset charset) {
+        StringEncrypter encrypter;
+        String decrypted = "";
+        try {
+            encrypter = new StringEncrypter(sKey, algorithm);
+            decrypted = encrypter.decrypt(encryptedString, charset);
+        } catch (IOException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalBlockSizeException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (BadPaddingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidKeyException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return decrypted;
+    }
+
+    /**
+     *
      * @param algorithm
      * @param bytes
      * @return
      * @throws NoSuchAlgorithmException
      */
-    public SecretKey generateKey(String algorithm, int bytes) throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance(algorithm);
-        keyGen.init(bytes);
+    public static SecretKey generateKey(Encryption algorithm, int bytes) {
+        KeyGenerator keyGen = null;
+        try {
+            String algo = "";
+            switch (algorithm) {
+                case AES:
+                    algo = "AES";
+                    break;
+                case DES:
+                    algo = "DES";
+                    break;
+                default:
+                    algo = "AES";
+                    break;
+            }
+            keyGen = KeyGenerator.getInstance(algo);
+            keyGen.init(bytes);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
         SecretKey secretKey = keyGen.generateKey();
         return secretKey;
     }
 
     /**
-     * 
+     *
      * @param secretKey
      * @return
      */
-    public String convertSecretKeyToString(SecretKey secretKey) {
+    public static String convertSecretKeyToString(SecretKey secretKey) {
         byte[] encoded = secretKey.getEncoded();
         String data = Base64.encodeBase64String(encoded);
         return data;
     }
 
     /**
-     * 
+     *
      * @param hex
      * @param algorithm
      * @return
      */
-    public SecretKey loadKey(String hex, String algorithm) {
+    public static SecretKey loadKey(String hex, String algorithm) {
         byte[] encoded = Base64.decodeBase64(hex);
         SecretKey key = new SecretKeySpec(encoded, algorithm);
         return key;
     }
-
 }
