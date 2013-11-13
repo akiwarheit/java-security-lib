@@ -1,7 +1,6 @@
 Luisa's Security Library
 =================
-
-Some hashing and encryption helpers and stuff
+Encryption library; it's so secure, promise.
 
 Typical Usage
 =================
@@ -13,6 +12,7 @@ Typical Usage
         String message = "Hello world!";
         String encryptedMessage = SecurityUtil.getInstance().encrypt(skey, message, Encryption.AES);
         String decryptedMessage = SecurityUtil.getInstance().decrypt(skey, encryptedMessage, Encryption.AES);
+        assertTrue(message.equals(decryptedMessage)); // true dat
 
-To be continued...
+To be continued... (hashing is not yet done)
     
