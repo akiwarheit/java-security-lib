@@ -41,24 +41,32 @@ public class SecurityUtil {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public byte[] hash(String text, Hash algorithm) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        String algo = "";
-        switch (algorithm) {
-            case SHA1:
-                algo = "SHA-1";
-                break;
-            case SHA256:
-                algo = "SHA-256";
-                break;
-            case MD5:
-                algo = "MD5";
-                break;
-            default:
-                break;
+    public byte[] hash(String text, Hash algorithm) {
+        byte[] input = null;
+        try {
+            String algo = "";
+            switch (algorithm) {
+                case SHA1:
+                    algo = "SHA-1";
+                    break;
+                case SHA256:
+                    algo = "SHA-256";
+                    break;
+                case MD5:
+                    algo = "MD5";
+                    break;
+                default:
+                    break;
+            }
+            MessageDigest digest = MessageDigest.getInstance(algo);
+            digest.reset();
+            input = digest.digest(text.getBytes("UTF-8"));
+
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-        MessageDigest digest = MessageDigest.getInstance(algo);
-        digest.reset();
-        byte[] input = digest.digest(text.getBytes("UTF-8"));
 
         return input;
     }
@@ -72,31 +80,38 @@ public class SecurityUtil {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    public byte[] hash(String text, Hash algorithm, Charset charset) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        String algo = "";
-        switch (algorithm) {
-            case SHA1:
-                algo = "SHA-1";
-                break;
-            case SHA256:
-                algo = "SHA-256";
-                break;
-            case MD5:
-                algo = "MD5";
-                break;
-            default:
-                break;
+    public byte[] hash(String text, Hash algorithm, Charset charset) {
+        byte[] input = null;
+        try {
+            String algo = "";
+            switch (algorithm) {
+                case SHA1:
+                    algo = "SHA-1";
+                    break;
+                case SHA256:
+                    algo = "SHA-256";
+                    break;
+                case MD5:
+                    algo = "MD5";
+                    break;
+                default:
+                    break;
+            }
+            String chars = "";
+            switch (charset) {
+                case UTF8:
+                    chars = "UTF8";
+                    break;
+            }
+            MessageDigest digest = MessageDigest.getInstance(algo);
+            digest.reset();
+            input = digest.digest(text.getBytes(chars));
+            return input;
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(SecurityUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-        String chars = "";
-        switch (charset) {
-            case UTF8:
-                chars = "UTF8";
-                break;
-        }
-        MessageDigest digest = MessageDigest.getInstance(algo);
-        digest.reset();
-        byte[] input = digest.digest(text.getBytes(chars));
-
         return input;
     }
 

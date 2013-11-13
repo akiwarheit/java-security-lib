@@ -5,7 +5,11 @@
 package com.keeboi.sec;
 
 import com.keeboi.libraries.security.Encryption;
+import com.keeboi.libraries.security.Hash;
 import com.keeboi.libraries.security.SecurityUtil;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.crypto.SecretKey;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -36,5 +40,10 @@ public class SecurityUtilTest extends TestCase {
         System.out.println(decryptedMessage);
 
         assertTrue(message.equals(decryptedMessage));
+        try {
+            String hashedMessage = new String(SecurityUtil.getInstance().hash(message, Hash.SHA1), "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(SecurityUtilTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
