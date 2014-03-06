@@ -1,6 +1,6 @@
-Keeboi's Security Library
+Keeboi's Simplified Security Library
 =================
-Encryption library; it's so secure, promise.
+It's so secure, promise.
 
 Typical Usage
 =================
